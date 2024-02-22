@@ -16,8 +16,8 @@ export function UserPage() {
       },
     })
       .then((response) => response.json())
-      .then((body: User[]) => {
-        setAllUsers(body);
+      .then((body: { content: User[] }) => {
+        setAllUsers(body.content);
       })
       .catch((error) => {
         setAllUsers(error);
