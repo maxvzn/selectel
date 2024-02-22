@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 """
 
 from pathlib import Path
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -20,13 +21,20 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-4c)t!07gr#*3m22ym-#z67izo2yzqarckbog2zr(1nw&qw$4(j'
 
+SECRET_KEY = os.environ.get(
+    "SECRET_KEY", "django-insecure-4c)t!07gr#*3m22ym-#z67izo2yzqarckbog2zr(1nw&qw$4(j"
+)
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.environ.get("DEBUG", True)
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = ["127.0.0.1", "0.0.0.0"]
 
+if os.environ.get("ALLOWED_HOSTS") is not None:
+    try:
+        ALLOWED_HOSTS += os.environ.get("ALLOWED_HOSTS").split(",")
+    except Exception as e:
+        print("Cant set ALLOWED_HOSTS, using default instead")
 
 # Application definition
 
@@ -76,9 +84,13 @@ WSGI_APPLICATION = 'backend.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
+        "ENGINE": "django.db.backends.postgresql",
+        "DATABASE_HOST": os.environ.get("POSTGRES_HOST", "localhost"),
+        "DATABASE_NAME": os.environ.get("POSTGRES_NAME", "postgres"),
+        "DATABASE_USER": os.environ.get("POSTGRES_USER", "postgres"),
+        "DATABASE_PASSWORD": os.environ.get("POSTGRES_PASSWORD", "postgres"),
+        "DATABASE_PORT": int(os.environ.get("POSTGRES_PORT", "5432")),
+    },
 }
 
 
@@ -122,3 +134,5 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+CELERY_BROKER_URL = os.environ.get("BROKER_URL", "redis://localhost:6380/0")
+CELERY_RESULT_BACKEND = os.environ.get("RESULT_BACKEND", "redis://localhost:6380/0")
