@@ -1,0 +1,20 @@
+services:
+  nginx:
+    depends_on:
+      - client
+    restart: always
+    build:
+      dockerfile: Dockerfile
+      context: ./nginx
+    ports:
+      - "3050:80"
+  client:
+    stdin_open: true
+    volumes:
+      - /app/node_modules
+      - ./client:/app
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
